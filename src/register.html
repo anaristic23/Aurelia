@@ -1,7 +1,7 @@
 <template>
   <section class="au-animate">
     <h2>${heading}</h2>
-    <form role="form" submit.delegate="submit()">
+    <form role="form" submit.delegate="register()">
       <div class="form-group">
         <label for="fn">First Name</label>
         <input type="text" value.bind="firstName" class="form-control" id="fn" placeholder="first name">
@@ -14,11 +14,7 @@
         <label for="ln">E-mail</label>
         <input type="text" value.bind="email" class="form-control" id="ln" placeholder="e-mail">
       </div>
-      <div class="form-group">
-        <label>Full Name</label>
-        <p class="help-block">${fullName | upper}</p>
-      </div>
-      <button type="submit" class="btn btn-primary" click.delegate="register()">Submit</button>
+      <button type="submit" class="btn btn-primary">Submit</button>
     </form>
   </section>
 </template>

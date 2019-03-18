@@ -1,11 +1,10 @@
 <template bindable="router">
   <section class="au-animate">
     <h2>${heading}</h2>
-    <!-- <ul>
-      <li repeat.for="user of users">
-        <input type="text" value="New User" />
-        <button>Add</button>
-      </li>
-    </ul> -->
+    <ul class="list-group list-group-flush">
+        <li class="list-group-item" repeat.for="user of users">
+          <a href.bind="'#/profilepage/' + user.id">${user.name}</a>
+            <p>${user.email}</p>
+        </li>
   </section>
 </template>
