@@ -8,7 +8,6 @@ const fetchPolyfill = !self.fetch
   : Promise.resolve(self.fetch);
 
 export class Register {
-  public heading: string = 'Registration page';
   public firstName: string = '';
   public lastName: string = '';
   public email: string = "";
@@ -23,7 +22,7 @@ export class Register {
     this.http.configure(config => {
       config
         .useStandardConfiguration()
-        .withBaseUrl("https://jsonplaceholder.typicode.com/");
+        .withBaseUrl("http://10.5.10.69/aurelia/api/");
     });
   }
 
@@ -35,7 +34,7 @@ export class Register {
     return true;
   }
 
-  async register() {
+ register() {
     if (this.validate()) {
       var model = {
         // "id": 0,
@@ -44,11 +43,11 @@ export class Register {
         lastName: this.lastName
       };
 
-      const response = await this.http.fetch('users', {
+      const response = this.http.fetch('form', {
         method: "post",
         body: json(model)
-      });
-      const data = await response.json();
+      })
+      .then(response => {return response.json()})
       this.router.navigateToRoute('list-of-users');
     } else {
       alert('Form is not valid!');

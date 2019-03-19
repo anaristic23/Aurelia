@@ -1,3 +1,4 @@
+import { Router } from 'aurelia-router';
 import {lazy} from 'aurelia-framework';
 import {HttpClient, json} from 'aurelia-fetch-client';
 
@@ -7,31 +8,37 @@ const fetchPolyfill = !self.fetch
 
 
 export class Login{
-  public heading: string = "Login page";
   public email: string = "";
   public password: string ="";
   public http;
   public users = [];
 
 
-  constructor(@lazy(HttpClient) private getHttpClient: () => HttpClient) {}
+  constructor(@lazy(HttpClient) private getHttpClient: () => HttpClient, private router: Router) {}
 
   async activate() {
-    // ensure fetch is polyfilled before we create the http client
     await fetchPolyfill;
     this.http = this.getHttpClient();
 
     this.http.configure(config => {
       config
         .useStandardConfiguration()
-        .withBaseUrl("https://jsonplaceholder.typicode.com/");
+        .withBaseUrl("http://10.5.10.69/aurelia/api/");
     });
 
-    // const response = await http.fetch("posts");
-    // this.posts = await response.json();
+    this.getUsers();
   }
+
+  public loginValidation(){
+    if(this.email === "" || this.password === ""){
+      return false;
+    }
+    return true;
+  }
+  
+  
   async getUsers(){
-    const response = await this.http.fetch("users");
+    const response = await this.http.fetch("form");
     this.users = await response.json()
   }
 }

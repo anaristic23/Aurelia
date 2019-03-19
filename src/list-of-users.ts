@@ -7,7 +7,6 @@ const fetchPolyfill = !self.fetch
 
 
 export class ListOfUsers {
-  public heading: string =  'List Of Users';
   public name: string = "";
   public email: string = "";
   public http;
