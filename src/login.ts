@@ -1,44 +1,64 @@
-import { Router } from 'aurelia-router';
-import {lazy} from 'aurelia-framework';
-import {HttpClient, json} from 'aurelia-fetch-client';
+import { Router } from "aurelia-router";
+import { inject } from "aurelia-framework";
+import { HttpClient, json } from "aurelia-fetch-client";
+import {
+  ValidationRules,
+  ValidationControllerFactory
+  // ValidationController
+} from "aurelia-validation";
 
 const fetchPolyfill = !self.fetch
-  ? import('isomorphic-fetch' /* webpackChunkName: 'fetch' */)
+  ? import("isomorphic-fetch" /* webpackChunkName: 'fetch' */)
   : Promise.resolve(self.fetch);
 
-
-export class Login{
+@inject(HttpClient, Router, ValidationControllerFactory)
+export class Login {
   public email: string = "";
-  public password: string ="";
+  public password: string = "";
   public http;
   public users = [];
+  public currentUser;
+  controller;
 
+  constructor(
+    private getHttpClient: () => HttpClient,
+    private router: Router,
+    controllerFactory: ValidationControllerFactory
+  ) {
+    this.controller = controllerFactory.createForCurrentScope();
+    this.currentUser = null;
 
-  constructor(@lazy(HttpClient) private getHttpClient: () => HttpClient, private router: Router) {}
+    ValidationRules.ensure("email")
+      .required()
+      .on(this.email);
+  }
 
-  async activate() {
-    await fetchPolyfill;
+  activate() {
+    fetchPolyfill;
     this.http = this.getHttpClient();
 
     this.http.configure(config => {
       config
         .useStandardConfiguration()
-        .withBaseUrl("http://10.5.10.69/aurelia/api/");
+        .withBaseUrl("https://jsonplaceholder.typicode.com/");
     });
 
     this.getUsers();
   }
 
-  public loginValidation(){
-    if(this.email === "" || this.password === ""){
+  public loginValidation() {
+    if (this.email === "" || this.password === "") {
       return false;
     }
     return true;
   }
-  
-  
-  async getUsers(){
-    const response = await this.http.fetch("form");
-    this.users = await response.json()
+
+  getUsers() {
+    this.http
+      .fetch("users")
+      .then(response => response.json())
+      .then(response => {
+        this.users = response;
+      });
   }
 }

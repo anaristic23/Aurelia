@@ -1,11 +1,11 @@
-import { lazy } from 'aurelia-framework';
+import { inject } from 'aurelia-framework';
 import {HttpClient, json} from 'aurelia-fetch-client';
 
 const fetchPolyfill = !self.fetch
   ? import('isomorphic-fetch' /* webpackChunkName: 'fetch' */)
   : Promise.resolve(self.fetch);
 
-
+@inject(HttpClient)
 export class ListOfUsers {
   public name: string = "";
   public email: string = "";
@@ -13,10 +13,10 @@ export class ListOfUsers {
   public users = [];
 
   
-  constructor(@lazy(HttpClient) private getHttpClient: () => HttpClient) {}
+  constructor(private getHttpClient: () => HttpClient) {}
 
-  async activate() {
-    await fetchPolyfill;
+  activate() {
+    fetchPolyfill;
     this.http = this.getHttpClient();
 
     this.http.configure(config => {
@@ -28,8 +28,8 @@ export class ListOfUsers {
     this.getUsers();
   }
 
-  async getUsers(){
-    const response = await this.http.fetch("users");
-    this.users = await response.json();
+ getUsers(){
+   this.http.fetch("users")
+   .then(response => response.json())
   }
 }

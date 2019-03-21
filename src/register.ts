@@ -1,28 +1,39 @@
-import { Router } from 'aurelia-router';
-import { autoinject } from 'aurelia-dependency-injection';
-import { lazy } from 'aurelia-framework';
-import {HttpClient, json} from 'aurelia-fetch-client';
+import { Router } from "aurelia-router";
+import { inject } from "aurelia-framework";
+import { HttpClient, json } from "aurelia-fetch-client";
+import {ValidationRules,
+  ValidationControllerFactory,
+  // ValidationController
+} from "aurelia-validation";
 
 const fetchPolyfill = !self.fetch
-  ? import('isomorphic-fetch' /* webpackChunkName: 'fetch' */)
+  ? import("isomorphic-fetch" /* webpackChunkName: 'fetch' */)
   : Promise.resolve(self.fetch);
 
+@inject(HttpClient, Router, ValidationControllerFactory)
 export class Register {
-  public firstName: string = '';
-  public lastName: string = '';
+  public firstName: string = "";
+  public lastName: string = "";
   public email: string = "";
   public http;
+  controller;
 
-  constructor(@lazy(HttpClient) private getHttpClient: () => HttpClient, private router: Router) {}
+  constructor(
+    private getHttpClient: () => HttpClient,
+    private router: Router,
+    controllerFactory: ValidationControllerFactory
+  ) {
+    this.controller = controllerFactory.createForCurrentScope();
+  }
 
-  async activate() {
-    await fetchPolyfill;
+  activate() {
+    fetchPolyfill;
     this.http = this.getHttpClient();
 
     this.http.configure(config => {
       config
         .useStandardConfiguration()
-        .withBaseUrl("http://10.5.10.69/aurelia/api/");
+        .withBaseUrl("https://jsonplaceholder.typicode.com/");
     });
   }
 
@@ -34,7 +45,7 @@ export class Register {
     return true;
   }
 
- register() {
+  register() {
     if (this.validate()) {
       var model = {
         // "id": 0,
@@ -43,14 +54,19 @@ export class Register {
         lastName: this.lastName
       };
 
-      const response = this.http.fetch('form', {
-        method: "post",
-        body: json(model)
-      })
-      .then(response => {return response.json()})
-      this.router.navigateToRoute('list-of-users');
+      this.http
+        .fetch("users", {
+          method: "post",
+          body: json(model)
+        })
+        .then(response => {
+          return response.json();
+        })
+        .then(response => {
+          this.router.navigateToRoute("list-of-users");
+        });
     } else {
-      alert('Form is not valid!');
+      alert("Form is not valid!");
     }
   }
 }
