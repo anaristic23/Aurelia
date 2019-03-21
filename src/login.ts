@@ -1,5 +1,5 @@
 import { Router } from "aurelia-router";
-import { inject } from "aurelia-framework";
+import {Lazy, inject} from 'aurelia-framework';
 import { HttpClient, json } from "aurelia-fetch-client";
 import {
   ValidationRules,
@@ -11,7 +11,7 @@ const fetchPolyfill = !self.fetch
   ? import("isomorphic-fetch" /* webpackChunkName: 'fetch' */)
   : Promise.resolve(self.fetch);
 
-@inject(HttpClient, Router, ValidationControllerFactory)
+@inject(Lazy.of (HttpClient), Router, ValidationControllerFactory)
 export class Login {
   public email: string = "";
   public password: string = "";
@@ -25,12 +25,10 @@ export class Login {
     private router: Router,
     controllerFactory: ValidationControllerFactory
   ) {
+    this.getHttpClient = getHttpClient;
     this.controller = controllerFactory.createForCurrentScope();
     this.currentUser = null;
 
-    ValidationRules.ensure("email")
-      .required()
-      .on(this.email);
   }
 
   activate() {
@@ -60,5 +58,13 @@ export class Login {
       .then(response => {
         this.users = response;
       });
+  }
+
+  userChanged(newValue, oldValue){
+    if(this.users){
+      ValidationRules.ensure("email")
+      .required()
+      .on(this.email);
+    }
   }
 }
